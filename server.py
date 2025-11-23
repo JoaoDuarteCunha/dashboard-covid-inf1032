@@ -4,6 +4,8 @@ import plotly.express as px
 from shinywidgets import render_plotly
 
 from shiny import reactive, render, ui
+from model.tipo_grafico.barra import GraficoBarra
+from model.tipo_grafico.piramide_etaria import GraficoPiramideEtaria
 from shared import df_tratado
 
 import pandas as pd
@@ -82,9 +84,84 @@ def server(input, output, session):
 
         return f"{positivos / len(df_filtrado()) * 100:.2f}%"
 
+    @render.ui
+    def idade_media():
+        df = df_filtrado()
+
+        return f"{df["idade"].mean():.0f}"
+
     @render.data_frame
     def table():
         return render.DataGrid(df_filtrado().head(500))
+
+    @reactive.calc
+    def processa_piramide_etaria():
+        df = df_filtrado().copy()
+
+        # Criar faixa etária
+        bins = [0, 18, 30, 40, 50, 60, 70, 80, 90, 100, np.inf]
+        labels = [
+            "<18",
+            "18-29",
+            "30-39",
+            "40-49",
+            "50-59",
+            "60-69",
+            "70-79",
+            "80-89",
+            "90-99",
+            "100+",
+        ]
+
+        df["age_range"] = pd.cut(df["idade"], bins=bins, labels=labels, right=False)
+
+        # Contagem de casos
+        df_group = (
+            df.groupby(["sexo", "age_range"]).size().reset_index(name="total_admissoes")
+        )
+
+        # Separar masculino e feminino
+        df_masculino = df_group[df_group["sexo"] == "Masculino"].copy()
+        df_feminino = df_group[df_group["sexo"] == "Feminino"].copy()
+
+        df_masculino["total_admissoes_abs"] = df_masculino["total_admissoes"]
+        df_masculino["total_admissoes"] *= -1  # para pirâmide
+
+        ordem_idades = labels  # já definidas acima
+
+        # Criar gráficos
+        plot_1 = GraficoBarra(
+            dataframe=df_masculino,
+            eixo_x="total_admissoes",
+            eixo_y="age_range",
+            hex_cores=["#4B6BD5"],
+            ordem={"age_range": ordem_idades},
+            data_custom_hover=["total_admissoes_abs"],
+        )
+        plot_1.set_nome("Masculino")
+
+        plot_2 = GraficoBarra(
+            dataframe=df_feminino,
+            eixo_x="total_admissoes",
+            eixo_y="age_range",
+            hex_cores=["#E91E63"],
+            ordem={"age_range": ordem_idades},
+        )
+        plot_2.set_nome("Feminino")
+
+        valor_maximo = max(
+            abs(df_masculino["total_admissoes"].min()),
+            df_feminino["total_admissoes"].max(),
+        )
+
+        fig = GraficoPiramideEtaria(plot_1, plot_2, valor_maximo)
+        fig.set_ordem(ordem_idades)
+
+        return fig
+
+    @render.ui
+    def grafico_piramide_etaria():
+        return processa_piramide_etaria().get_grafico_figure()
 
 
 def filtro_selectize(df, coluna: str, input):

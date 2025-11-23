@@ -88,31 +88,21 @@ app_ui = ui.page_sidebar(
             showcase=ICONS["wallet"],
         ),
         ui.value_box(
-            "Average bill",
-            ui.output_ui("average_bill"),
+            "Idade média",
+            ui.output_ui("idade_media"),
             showcase=ICONS["currency-dollar"],
         ),
         fill=False,
     ),
     ui.layout_columns(
         ui.card(
-            ui.card_header("Tips data"), ui.output_data_frame("table"), full_screen=True
+            ui.card_header("Dados de Notificação"),
+            ui.output_data_frame("table"),
+            full_screen=True,
         ),
         ui.card(
             ui.card_header(
                 "Total bill vs tip",
-                ui.popover(
-                    ICONS["ellipsis"],
-                    ui.input_radio_buttons(
-                        "scatter_color",
-                        None,
-                        ["none", "sex", "smoker", "day", "time"],
-                        inline=True,
-                    ),
-                    title="Add a color variable",
-                    placement="top",
-                ),
-                class_="d-flex justify-content-between align-items-center",
             ),
             output_widget("scatterplot"),
             full_screen=True,
