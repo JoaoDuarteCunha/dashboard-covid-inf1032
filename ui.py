@@ -10,6 +10,13 @@ idade_range = (
     df_tratado["idade"].max().item(),
 )
 raca_cor_lista = df_tratado["racaCor"].unique().tolist()
+sexo_lista = df_tratado["sexo"].unique().tolist()
+municipio_lista = df_tratado["municipio"].unique().tolist()
+classificacao_final_lista = df_tratado["classificacaoFinal"].unique().tolist()
+data_range = (
+    df_tratado["dataNotificacao"].min(),
+    df_tratado["dataNotificacao"].max(),
+)
 
 ICONS = {
     "user": fa.icon_svg("user", "regular"),
@@ -21,6 +28,15 @@ ICONS = {
 # Add page title and sidebar
 app_ui = ui.page_sidebar(
     ui.sidebar(
+        ui.input_date_range(
+            "data",
+            "Data",
+            start=data_range[0],
+            end=data_range[1],
+            min=data_range[0],
+            max=data_range[1],
+        ),
+        ui.input_switch("permite_nulas_data", "Permitir datas nulas", value=True),
         ui.input_slider(
             "idade",
             "Idade",
@@ -30,7 +46,7 @@ app_ui = ui.page_sidebar(
             post=" anos",
             step=1,
         ),
-        ui.input_switch("permite_nulas", "Permitir idades nulas", value=True),
+        ui.input_switch("permite_nulas_idade", "Permitir idades nulas", value=True),
         ui.input_checkbox_group(
             "racaCor",
             "Raça/Cor",
@@ -38,7 +54,26 @@ app_ui = ui.page_sidebar(
             selected=raca_cor_lista,
             inline=True,
         ),
-        ui.input_action_button("reset", "Reset filter"),
+        ui.input_checkbox_group(
+            "sexo",
+            "Sexo",
+            sexo_lista,
+            selected=sexo_lista,
+            inline=True,
+        ),
+        ui.input_selectize(
+            "municipio",
+            "Município",
+            choices=municipio_lista,
+            multiple=True,
+        ),
+        ui.input_selectize(
+            "classificacaoFinal",
+            "Classificação Final",
+            choices=classificacao_final_lista,
+            multiple=True,
+        ),
+        ui.input_action_button("reset", "Limpar filtro"),
         open="desktop",
     ),
     ui.layout_columns(
@@ -48,7 +83,9 @@ app_ui = ui.page_sidebar(
             showcase=ICONS["user"],
         ),
         ui.value_box(
-            "Average tip", ui.output_ui("average_tip"), showcase=ICONS["wallet"]
+            "Porcentagem de notificações positivas",
+            ui.output_ui("porcentagem_notificacoes_positivas"),
+            showcase=ICONS["wallet"],
         ),
         ui.value_box(
             "Average bill",
