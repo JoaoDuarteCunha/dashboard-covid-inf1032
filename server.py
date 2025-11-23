@@ -14,13 +14,21 @@ def server(input, output, session):
     @reactive.calc
     def df_filtrado():
         df = df_tratado.copy()
-        idade = input.idade()
 
+        print(df["racaCor"].unique().tolist())
+        # Idade
+        idade = input.idade()
         # Se permitir nulas
         if input.permite_nulas():
             df = df[df["idade"].between(idade[0], idade[1]) | df["idade"].isna()]
         else:
             df = df[df["idade"].between(idade[0], idade[1])]
+
+        # Raça/cor
+        if "nan" in input.racaCor():
+            df = df[df["racaCor"].isin(input.racaCor()) | df["racaCor"].isna()]
+        else:
+            df = df[df["racaCor"].isin(input.racaCor())]
 
         return df
 

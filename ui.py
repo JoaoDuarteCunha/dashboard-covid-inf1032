@@ -9,6 +9,7 @@ idade_range = (
     df_tratado["idade"].min().item(),
     df_tratado["idade"].max().item(),
 )
+raca_cor_lista = df_tratado["racaCor"].unique().tolist()
 
 ICONS = {
     "user": fa.icon_svg("user", "regular"),
@@ -31,10 +32,10 @@ app_ui = ui.page_sidebar(
         ),
         ui.input_switch("permite_nulas", "Permitir idades nulas", value=True),
         ui.input_checkbox_group(
-            "time",
-            "Food service",
-            ["Lunch", "Dinner"],
-            selected=["Lunch", "Dinner"],
+            "racaCor",
+            "Raça/Cor",
+            raca_cor_lista,
+            selected=raca_cor_lista,
             inline=True,
         ),
         ui.input_action_button("reset", "Reset filter"),
