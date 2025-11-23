@@ -1,7 +1,8 @@
 import plotly.express as px
+import numpy as np
 
 # Load data and compute static values
-from shinywidgets import render_plotly
+from shinywidgets import render_widget
 
 from shiny import reactive, render, ui
 from model.tipo_grafico.barra import GraficoBarra
@@ -159,7 +160,7 @@ def server(input, output, session):
 
         return fig
 
-    @render.ui
+    @render_widget
     def grafico_piramide_etaria():
         return processa_piramide_etaria().get_grafico_figure()
 

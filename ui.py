@@ -102,9 +102,11 @@ app_ui = ui.page_sidebar(
         ),
         ui.card(
             ui.card_header(
-                "Total bill vs tip",
+                "Pirâmide Etária",
             ),
-            output_widget("scatterplot"),
+            output_widget(
+                "grafico_piramide_etaria",
+            ),
             full_screen=True,
         ),
         ui.card(
