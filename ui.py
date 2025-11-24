@@ -23,6 +23,8 @@ ICONS = {
     "wallet": fa.icon_svg("wallet"),
     "currency-dollar": fa.icon_svg("dollar-sign"),
     "ellipsis": fa.icon_svg("ellipsis"),
+    "hourglass-half": fa.icon_svg("hourglass-half"),
+    "percent": fa.icon_svg("percent"),
 }
 
 # Add page title and sidebar
@@ -85,54 +87,65 @@ app_ui = ui.page_sidebar(
         ui.value_box(
             "Porcentagem de notificações positivas",
             ui.output_ui("porcentagem_notificacoes_positivas"),
-            showcase=ICONS["wallet"],
+            showcase=ICONS["percent"],
         ),
         ui.value_box(
             "Idade média",
             ui.output_ui("idade_media"),
-            showcase=ICONS["currency-dollar"],
+            showcase=ICONS["hourglass-half"],
         ),
         fill=False,
     ),
-    ui.layout_columns(
-        ui.card(
-            ui.card_header("Dados de Notificação"),
-            ui.output_data_frame("table"),
-            full_screen=True,
-        ),
-        ui.card(
-            ui.card_header(
-                "Pirâmide Etária",
-            ),
-            output_widget(
-                "grafico_piramide_etaria",
-            ),
-            full_screen=True,
-        ),
-        ui.card(
-            ui.card_header(
-                "Tip percentages",
-                ui.popover(
-                    ICONS["ellipsis"],
-                    ui.input_radio_buttons(
-                        "tip_perc_y",
-                        "Split by:",
-                        ["sex", "smoker", "day", "time"],
-                        selected="day",
-                        inline=True,
-                    ),
-                    title="Add a color variable",
-                ),
-                class_="d-flex justify-content-between align-items-center",
-            ),
-            output_widget("grafico_linha_classificacao"),
-            output_widget("grafico_numero_casos"),
-            output_widget("grafico_sintomas"),
-            full_screen=True,
-        ),
-        col_widths=[6, 6, 12],
+    ui.card(
+        ui.card_header("Dados de Notificação"),
+        ui.output_data_frame("table"),
+        height="400px",
+        fill=False,
+        full_screen=True,
     ),
-    output_widget("grafico_scatter", height="500px"),
+    ui.card(
+        ui.card_header(
+            "Número de casos",
+        ),
+        output_widget("grafico_numero_casos"),
+        height="400px",
+        fill=False,
+        full_screen=True,
+    ),
+    ui.card(
+        ui.card_header(
+            "Distribuição por tipo de classificação",
+        ),
+        output_widget("grafico_linha_classificacao"),
+        height="400px",
+        fill=False,
+        full_screen=True,
+    ),
+    ui.row(
+        ui.column(
+            6,
+            ui.card(
+                ui.card_header(
+                    "Sintomas",
+                ),
+                output_widget("grafico_sintomas"),
+                full_screen=True,
+            ),
+        ),
+        ui.column(
+            6,
+            ui.card(
+                ui.card_header(
+                    "Pirâmide Etária",
+                ),
+                output_widget(
+                    "grafico_piramide_etaria",
+                ),
+                full_screen=True,
+            ),
+        ),
+        fill=False,
+    ),
     ui.layout_columns(
         ui.card(
             ui.card_header("Sexo"),
@@ -140,22 +153,19 @@ app_ui = ui.page_sidebar(
             min_height="500px",
             full_screen=True,
         ),
-
         ui.card(
             ui.card_header("Raça/Cor"),
             output_widget("donut_raca"),
             min_height="500px",
             full_screen=True,
         ),
-
         ui.card(
             ui.card_header("Classificação Final"),
             output_widget("donut_classificacao"),
             min_height="500px",
             full_screen=True,
         ),
-
-        col_widths=[3, 3, 3],
+        col_widths=[4, 4, 4],
     ),
     ui.include_css("styles.css"),
     title="Notificações COVID-19",
