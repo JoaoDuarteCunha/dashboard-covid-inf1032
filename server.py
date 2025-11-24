@@ -6,6 +6,7 @@ from shinywidgets import render_widget
 
 from shiny import reactive, render, ui
 from model.tipo_grafico.barra import GraficoBarra
+from model.tipo_grafico.linha import GraficoLinha
 from model.tipo_grafico.piramide_etaria import GraficoPiramideEtaria
 from shared import df_tratado
 
@@ -139,6 +140,7 @@ def server(input, output, session):
             ordem={"age_range": ordem_idades},
             data_custom_hover=["total_admissoes_abs"],
         )
+        plot_1.set_hover("<b>%{y}</b><br>Masculino: %{customdata[0]:,}<extra></extra>")
         plot_1.set_nome("Masculino")
 
         plot_2 = GraficoBarra(
@@ -148,6 +150,7 @@ def server(input, output, session):
             hex_cores=["#E91E63"],
             ordem={"age_range": ordem_idades},
         )
+        plot_2.set_hover("<b>%{y}</b><br>Feminimo: %{customdata[0]:,}<extra></extra>")
         plot_2.set_nome("Feminino")
 
         valor_maximo = max(
@@ -163,6 +166,54 @@ def server(input, output, session):
     @render_widget
     def grafico_piramide_etaria():
         return processa_piramide_etaria().get_grafico_figure()
+
+    @render_widget
+    def grafico_numero_casos():
+        df = df_filtrado()
+
+        df["ano"] = df["dataNotificacao"].dt.year
+        df["mes"] = df["dataNotificacao"].dt.month
+
+        df["ano_mes"] = df["dataNotificacao"].dt.to_period("M")
+
+        df_agrupado = df.groupby("ano_mes").size().reset_index(name="num_casos")
+
+        df_agrupado = df_agrupado.sort_values("ano_mes")
+        df_agrupado["ano_mes_str"] = df_agrupado["ano_mes"].astype(str)
+
+        plot = GraficoLinha(
+            df_agrupado,
+            "ano_mes_str",
+            "num_casos",
+        )
+
+        return plot.get_grafico_figure()
+
+    @render_widget
+    def grafico_linha_classificacao():
+        df = df_filtrado().copy()
+
+        df["ano"] = df["dataNotificacao"].dt.year
+        df["mes"] = df["dataNotificacao"].dt.month
+
+        df["ano_mes"] = df["dataNotificacao"].dt.to_period("M")
+
+        df_agrupado = (
+            df.groupby(["ano_mes", "classificacaoFinal"])
+            .size()
+            .reset_index(name="num_casos")
+        )
+
+        df_agrupado = df_agrupado.sort_values("ano_mes")
+        df_agrupado["ano_mes_str"] = df_agrupado["ano_mes"].astype(str)
+        plot = GraficoLinha(
+            df_agrupado,
+            eixo_x="ano_mes_str",
+            eixo_y="num_casos",
+            cor="classificacaoFinal",
+        )
+
+        return plot.get_grafico_figure()
 
 
 def filtro_selectize(df, coluna: str, input):
