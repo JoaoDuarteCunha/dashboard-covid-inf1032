@@ -173,11 +173,7 @@ def server(input, output, session):
         df = df_filtrado().copy()
 
         df_pizza = (
-            df["sexo"]
-            .fillna("Não informado")
-            .astype(str)
-            .value_counts()
-            .reset_index()
+            df["sexo"].fillna("Não informado").astype(str).value_counts().reset_index()
         )
         df_pizza.columns = ["sexo", "total"]
 
@@ -215,7 +211,7 @@ def server(input, output, session):
         )
 
         return grafico.grafico
-    
+
     @render_widget
     def donut_raca():
         return processa_donut_raca()
@@ -224,18 +220,16 @@ def server(input, output, session):
     def processa_donut_classificacao():
         df = df_filtrado().copy()
 
-        df["classificacao_label"] = df["classificacaoFinalSimplificado"].map({
-            1: "Confirmado",
-            0: "Negativo",
-        })
+        df["classificacao_label"] = df["classificacaoFinalSimplificado"].map(
+            {
+                1: "Confirmado",
+                0: "Negativo",
+            }
+        )
 
         df["classificacao_label"] = df["classificacao_label"].fillna("Não informado")
 
-        df_pizza = (
-            df.groupby("classificacao_label")
-            .size()
-            .reset_index(name="total")
-        )
+        df_pizza = df.groupby("classificacao_label").size().reset_index(name="total")
 
         grafico = GraficoDonut(
             dataframe=df_pizza,
@@ -250,6 +244,7 @@ def server(input, output, session):
     @render_widget
     def donut_classificacao():
         return processa_donut_classificacao()
+
     @render_widget
     def grafico_numero_casos():
         df = df_filtrado()
@@ -327,8 +322,43 @@ def server(input, output, session):
             eixo_y="index",
             hex_cores=["#4B6BD5"],
         )
-        # plot_1.set_hover("<b>%{y}</b><br>Masculino: %{customdata[0]:,}<extra></extra>")
-        # plot_1.set_nome("Masculino")
+
+        return fig.get_grafico_figure()
+
+    @render_widget
+    def grafico_num_sintomas_classificacao_final():
+        df = df_filtrado()
+
+        df["classificacao_label"] = df["classificacaoFinalSimplificado"].map(
+            {
+                1: "Confirmado",
+                0: "Negativo",
+            }
+        )
+
+        df = (
+            df.groupby(["numSintomas", "classificacao_label"])
+            .size()
+            .reset_index(name="contagem")
+        )
+
+        df["percentual"] = (
+            df["contagem"] / df.groupby("numSintomas")["contagem"].transform("sum")
+        ) * 100
+
+        print(df)
+
+        fig = GraficoBarra(
+            dataframe=df,
+            eixo_x="percentual",
+            eixo_y="numSintomas",
+            cor="classificacao_label",
+            data_custom_hover=[
+                "contagem",
+            ],
+        )
+        fig.set_as_percentual(eixo="x")
+        fig.set_hover("<b>%{x:.2f}%</b> (%{customdata[0]:,})<extra></extra>")
 
         return fig.get_grafico_figure()
 

@@ -146,6 +146,15 @@ app_ui = ui.page_sidebar(
         ),
         fill=False,
     ),
+    ui.card(
+        ui.card_header(
+            "Classificação final por número de sintomas",
+        ),
+        output_widget("grafico_num_sintomas_classificacao_final"),
+        height="400px",
+        fill=False,
+        full_screen=True,
+    ),
     ui.layout_columns(
         ui.card(
             ui.card_header("Sexo"),
