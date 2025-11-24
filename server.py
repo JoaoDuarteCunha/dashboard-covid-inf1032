@@ -215,6 +215,40 @@ def server(input, output, session):
 
         return plot.get_grafico_figure()
 
+    @render_widget
+    def grafico_sintomas():
+        df = df_filtrado()
+
+        df = df[
+            [
+                "distúrbios olfativos",
+                "distúrbios gustativos",
+                "outros",
+                "dor de garganta",
+                "dor de cabeça",
+                "dispneia",
+                "febre",
+                "tosse",
+                "coriza",
+                "dificuldade de respirar",
+            ]
+        ]
+
+        df_sintomas = (
+            df.sum(axis=0).sort_values(ascending=False).reset_index(name="contagem")
+        )
+
+        fig = GraficoBarra(
+            dataframe=df_sintomas,
+            eixo_x="contagem",
+            eixo_y="index",
+            hex_cores=["#4B6BD5"],
+        )
+        # plot_1.set_hover("<b>%{y}</b><br>Masculino: %{customdata[0]:,}<extra></extra>")
+        # plot_1.set_nome("Masculino")
+
+        return fig.get_grafico_figure()
+
 
 def filtro_selectize(df, coluna: str, input):
     if len(input()) > 0:
