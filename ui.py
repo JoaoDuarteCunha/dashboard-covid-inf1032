@@ -130,6 +130,31 @@ app_ui = ui.page_sidebar(
         ),
         col_widths=[6, 6, 12],
     ),
+    ui.layout_columns(
+        ui.card(
+            ui.card_header("Sexo"),
+            output_widget("donut_sexo"),
+            min_height="500px",
+            full_screen=True,
+        ),
+
+        ui.card(
+            ui.card_header("Raça/Cor"),
+            output_widget("donut_raca"),
+            min_height="500px",
+            full_screen=True,
+        ),
+
+        ui.card(
+            ui.card_header("Classificação Final"),
+            output_widget("donut_classificacao"),
+            min_height="500px",
+            full_screen=True,
+        ),
+
+        col_widths=[3, 3, 3],
+    ),
+
     ui.include_css("styles.css"),
     title="Notificações COVID-19",
     fillable=True,
