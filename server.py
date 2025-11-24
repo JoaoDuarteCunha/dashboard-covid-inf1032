@@ -8,6 +8,7 @@ from shiny import reactive, render, ui
 from model.tipo_grafico.barra import GraficoBarra
 from model.tipo_grafico.linha import GraficoLinha
 from model.tipo_grafico.piramide_etaria import GraficoPiramideEtaria
+from model.tipo_grafico.donut import GraficoDonut
 from shared import df_tratado
 
 import pandas as pd
@@ -167,6 +168,88 @@ def server(input, output, session):
     def grafico_piramide_etaria():
         return processa_piramide_etaria().get_grafico_figure()
 
+    @reactive.calc
+    def processa_donut_sexo():
+        df = df_filtrado().copy()
+
+        df_pizza = (
+            df["sexo"]
+            .fillna("Não informado")
+            .astype(str)
+            .value_counts()
+            .reset_index()
+        )
+        df_pizza.columns = ["sexo", "total"]
+
+        grafico = GraficoDonut(
+            dataframe=df_pizza,
+            hole=0.4,
+            values="total",
+            names="sexo",
+        )
+
+        return grafico.grafico
+
+    @render_widget
+    def donut_sexo():
+        return processa_donut_sexo()
+
+    @reactive.calc
+    def processa_donut_raca():
+        df = df_filtrado().copy()
+
+        df_pizza = (
+            df["racaCor"]
+            .fillna("Não informado")
+            .astype(str)
+            .value_counts()
+            .reset_index()
+        )
+        df_pizza.columns = ["raca_cor", "total"]
+
+        grafico = GraficoDonut(
+            dataframe=df_pizza,
+            hole=0.4,
+            values="total",
+            names="raca_cor",
+        )
+
+        return grafico.grafico
+    
+    @render_widget
+    def donut_raca():
+        return processa_donut_raca()
+
+    @reactive.calc
+    def processa_donut_classificacao():
+        df = df_filtrado().copy()
+
+        df["classificacao_label"] = df["classificacaoFinalSimplificado"].map({
+            1: "Confirmado",
+            0: "Negativo",
+        })
+
+        df["classificacao_label"] = df["classificacao_label"].fillna("Não informado")
+
+        df_pizza = (
+            df.groupby("classificacao_label")
+            .size()
+            .reset_index(name="total")
+        )
+
+        grafico = GraficoDonut(
+            dataframe=df_pizza,
+            hole=0.5,
+            values="total",
+            names="classificacao_label",
+            hex_cores=["#4B6BD5", "#E91E63"],  # opcional
+        )
+
+        return grafico.grafico
+
+    @render_widget
+    def donut_classificacao():
+        return processa_donut_classificacao()
     @render_widget
     def grafico_numero_casos():
         df = df_filtrado()
